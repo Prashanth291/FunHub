@@ -1,0 +1,136 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    FUNHUB - APPLICATION FLOW                              ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+                            APP STARTUP
+                                 │
+                                 ▼
+                         ┌──────────────┐
+                         │ MainWrapper  │
+                         └──────┬───────┘
+                                │
+                    ┌───────────┴──────────────┐
+                    │                          │
+              NO AUTH                      AUTH EXISTS
+                    │                          │
+                    ▼                          ▼
+            ┌──────────────────┐      ┌────────────────────┐
+            │  ProfileScreen   │      │ GamesDashboard     │
+            │  (AuthScreen)    │      │ (BottomNavBar)     │
+            └────────┬─────────┘      └────────┬───────────┘
+                     │                         │
+        ┌────────────┼────────────┐            │
+        │            │            │            │
+    [Sign Up]  [Sign In]  [Google]            │
+        │            │            │            │
+        └────────────┼────────────┘            │
+                     │                         │
+                     └────────────┬────────────┘
+                                  │
+                                  ▼
+                       ┌──────────────────────┐
+                       │ GamesDashboard       │
+                       │ BottomNavBar(3 Tabs) │
+                       └──────────┬───────────┘
+                                  │
+                ┌─────────────────┼─────────────────┐
+                │                 │                 │
+               TAB 0            TAB 1            TAB 2
+                │                 │                 │
+                ▼                 ▼                 ▼
+         ┌────────────┐    ┌──────────────┐  ┌──────────────┐
+         │HomeScreen  │    │Leaderboard   │  │Profile       │
+         │(Games Grid)│    │(Top Players) │  │(User Stats)  │
+         │            │    │              │  │              │
+         │ • Guess #  │    │ 1. Player 1  │  │ Name: John   │
+         │ • Quiz     │    │ 2. Player 2  │  │ Score: 2450  │
+         │ • Memory   │    │ 3. Player 3  │  │              │
+         │ • Math     │    │ ...          │  │ Games:       │
+         │ • Emoji    │    │              │  │ • Guess: 350 │
+         │ • Daily    │    │              │  │ • Quiz: 420  │
+         │            │    │              │  │ • ...        │
+         └────┬───────┘    └──────────────┘  │              │
+              │                              │ [Edit]       │
+         [Tap Game]                          │ [Sign Out]   │
+              │                              └──────────────┘
+              ▼
+         ┌─────────────┐
+         │ Game Screen │
+         │ (Gameplay)  │
+         └─────┬───────┘
+               │
+         [Game Complete]
+               │
+               ▼
+         ┌──────────────┐
+         │Score Saved   │ ──→ Firestore
+         │to Firestore  │    gameScores
+         └──────────────┘
+
+═════════════════════════════════════════════════════════════════════════════
+
+DATABASE STRUCTURE:
+
+┌─ Firestore Database
+│
+├─ Collection: users/
+│  └─ Document: {userId}
+│     ├─ name: string
+│     ├─ email: string
+│     ├─ avatarUrl: string
+│     ├─ totalScore: number
+│     ├─ gameScores: {
+│     │  ├─ "Guess Number": 350
+│     │  ├─ "Quiz Game": 420
+│     │  ├─ "Memory Match": 280
+│     │  ├─ "Math Challenge": 410
+│     │  ├─ "Emoji Quiz": 350
+│     │  └─ "Daily Challenge": 240
+│     ├─ createdAt: timestamp
+│     └─ updatedAt: timestamp
+│
+└─ Collection: gameScores/
+   └─ Document: {scoreId}
+      ├─ userId: string
+      ├─ userName: string
+      ├─ gameName: string
+      ├─ score: number
+      ├─ timestamp: timestamp
+      ├─ difficulty: string
+      └─ timeSpent: number
+
+═════════════════════════════════════════════════════════════════════════════
+
+AUTHENTICATION METHODS:
+
+┌─ Firebase Auth
+│
+├─ Email/Password
+│  ├─ Sign Up: createUserWithEmailAndPassword(email, password)
+│  └─ Sign In: signInWithEmailAndPassword(email, password)
+│
+├─ Google OAuth
+│  └─ Sign In: signInWithCredential(GoogleAuthProvider.credential(...))
+│
+└─ Sign Out: signOut()
+
+═════════════════════════════════════════════════════════════════════════════
+
+API OPERATIONS:
+
+POST (Write):
+  • Create user in users collection
+  • Save score in gameScores collection
+  • Update user profile
+
+GET (Read):
+  • Fetch user data from users/{userId}
+  • Get top 10 players (orderBy totalScore desc)
+  • Get game-specific leaderboard
+
+FETCH (Query):
+  • All user's game scores
+  • Leaderboard rankings
+  • Recent scores
+
+═════════════════════════════════════════════════════════════════════════════
