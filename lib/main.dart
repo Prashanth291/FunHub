@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'screens/games_dashboard.dart';
+import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/guess_number.dart';
 import 'screens/quiz_game.dart';
@@ -12,19 +11,13 @@ import 'screens/daily_challenge.dart';
 import 'screens/memory_match.dart';
 import 'screens/math_challenge.dart';
 import 'screens/emoji_quiz.dart';
-import 'services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthService(),
-      child: const FunHubApp(),
-    ),
-  );
+  runApp(const FunHubApp());
 }
 
 class FunHubApp extends StatelessWidget {
@@ -35,12 +28,24 @@ class FunHubApp extends StatelessWidget {
     return MaterialApp(
       title: 'FunHub',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          centerTitle: true,
+          iconTheme: const IconThemeData(color: Colors.black87),
+        ),
+        scaffoldBackgroundColor: Colors.white,
       ),
-      home: const MainWrapper(),
+      initialRoute: '/splash',
       routes: {
-        '/games': (context) => const GamesDashboard(),
+        '/splash': (context) => const SplashScreen(),
+        '/': (context) => const HomeScreen(),
         '/guess': (context) => const GuessNumberScreen(),
         '/quiz': (context) => const QuizGameScreen(),
         '/leaderboard': (context) => const LeaderboardScreen(),
@@ -49,25 +54,6 @@ class FunHubApp extends StatelessWidget {
         '/memory': (context) => const MemoryMatchScreen(),
         '/math': (context) => const MathChallengeScreen(),
         '/emoji': (context) => const EmojiQuizScreen(),
-      },
-    );
-  }
-}
-
-// Main wrapper - handles authentication state
-class MainWrapper extends StatelessWidget {
-  const MainWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthService>(
-      builder: (context, authService, _) {
-        // If not authenticated, show login screen
-        if (!authService.isAuthenticated) {
-          return const ProfileScreen(); // Shows AuthScreen inside
-        }
-        // If authenticated, show games dashboard
-        return const GamesDashboard();
       },
     );
   }

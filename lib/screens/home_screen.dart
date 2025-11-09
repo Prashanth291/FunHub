@@ -1,6 +1,6 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
 
 class GameItem {
   final String title;
@@ -21,6 +21,7 @@ class GameItem {
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  // Only show playable games (Leaderboard and Profile are in bottom nav)
   static const List<GameItem> _games = [
     GameItem(
       title: 'Guess the Number',
@@ -73,97 +74,124 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        title: const Text(
-          'FunHub',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.games_rounded, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'FunHub',
+              style: TextStyle(
+                color: Color(0xFF1E293B),
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+            ),
+          ],
         ),
         centerTitle: false,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Center(
-              child: Consumer<AuthService>(
-                builder: (context, authService, _) {
-                  return Text(
-                    'Hi, ${authService.currentUser?.name.split(' ').first ?? 'Player'}!',
-                    style: TextStyle(
-                      color: Colors.blue[600],
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  );
-                },
-              ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF59E0B).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+                SizedBox(width: 4),
+                Text(
+                  '1250',
+                  style: TextStyle(
+                    color: Color(0xFFF59E0B),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
+          const SizedBox(width: 12),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Ready to Play?',
+                    'Welcome back!',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E293B),
+                      letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    'Pick a game and start earning points',
+                    'Choose a game to play',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       color: Colors.grey[600],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.85,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _GameCard(game: _games[index]),
-                childCount: _games.length,
+            
+            // Horizontal Games List
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                itemCount: _games.length,
+                itemBuilder: (context, index) => _HorizontalGameCard(
+                  game: _games[index],
+                  index: index,
+                ),
               ),
             ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _GameCard extends StatefulWidget {
+class _HorizontalGameCard extends StatefulWidget {
   final GameItem game;
+  final int index;
 
-  const _GameCard({required this.game});
+  const _HorizontalGameCard({
+    required this.game,
+    required this.index,
+  });
 
   @override
-  State<_GameCard> createState() => _GameCardState();
+  State<_HorizontalGameCard> createState() => _HorizontalGameCardState();
 }
 
-class _GameCardState extends State<_GameCard> with SingleTickerProviderStateMixin {
+class _HorizontalGameCardState extends State<_HorizontalGameCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
 
   @override
   void initState() {
@@ -172,7 +200,7 @@ class _GameCardState extends State<_GameCard> with SingleTickerProviderStateMixi
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -183,104 +211,157 @@ class _GameCardState extends State<_GameCard> with SingleTickerProviderStateMixi
     super.dispose();
   }
 
-  void _handleTapDown(TapDownDetails details) {
-    _controller.forward();
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    _controller.reverse();
-  }
-
-  void _handleTapCancel() {
-    _controller.reverse();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      onTap: () {
-        Navigator.pushNamed(context, widget.game.route);
-      },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GestureDetector(
+        onTapDown: (_) {
+          setState(() => _isPressed = true);
+          _controller.forward();
+        },
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          _controller.reverse();
+        },
+        onTapCancel: () {
+          setState(() => _isPressed = false);
+          _controller.reverse();
+        },
+        onTap: () {
+          Navigator.pushNamed(context, widget.game.route);
+        },
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Container(
+            height: 85,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: widget.game.color.withOpacity(0.15),
+                width: 1.5,
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              children: [
-                // Gradient background
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          widget.game.color.withOpacity(0.15),
-                          widget.game.color.withOpacity(0.05),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+              boxShadow: [
+                BoxShadow(
+                  color: widget.game.color.withOpacity(_isPressed ? 0.15 : 0.08),
+                  blurRadius: _isPressed ? 16 : 12,
+                  offset: const Offset(0, 4),
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  // Gradient background
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 100,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            widget.game.color.withOpacity(0.15),
+                            widget.game.color.withOpacity(0.05),
+                          ],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: widget.game.color.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          widget.game.icon,
-                          size: 32,
-                          color: widget.game.color,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        widget.game.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      if (widget.game.description != null)
-                        Text(
-                          widget.game.description!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
+                  
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        // Icon/Image Section
+                        Container(
+                          width: 54,
+                          height: 54,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                widget.game.color,
+                                widget.game.color.withOpacity(0.8),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: widget.game.color.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            widget.game.icon,
+                            color: Colors.white,
+                            size: 28,
                           ),
                         ),
-                    ],
+                        
+                        const SizedBox(width: 16),
+                        
+                        // Text Section
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.game.title,
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E293B),
+                                  letterSpacing: -0.3,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              if (widget.game.description != null)
+                                Text(
+                                  widget.game.description!,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                    letterSpacing: -0.1,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Arrow/Play Button
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: widget.game.color.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: widget.game.color,
+                            size: 18,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
