@@ -320,57 +320,203 @@ class _EmojiQuizScreenState extends State<EmojiQuizScreen> {
       _gameInProgress = false; // Ensure game is fully stopped
     });
 
+    final percentage = (_score / _questions.length * 100).round();
+    final isPerfect = _score == _questions.length;
+    final isGood = percentage >= 60;
+
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF43A047), Color(0xFF1B5E20)], // Green gradient
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.celebration, size: 80, color: Colors.white),
-              const SizedBox(height: 16),
-              const Text(
-                'Quiz Complete!',
-                style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+              // Trophy icon
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isPerfect
+                        ? [const Color(0xFFF59E0B), const Color(0xFFEF4444)]
+                        : isGood
+                            ? [const Color(0xFF10B981), const Color(0xFF059669)]
+                            : [const Color(0xFF6366F1), const Color(0xFF8B5CF6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isPerfect
+                              ? const Color(0xFFF59E0B)
+                              : isGood
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF6366F1))
+                          .withOpacity(0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.celebration_rounded,
+                  color: Colors.white,
+                  size: 50,
+                ),
               ),
-              const SizedBox(height: 12),
-              // This will now correctly show "Your Score: X / 10"
+              
+              const SizedBox(height: 24),
+              
               Text(
-                'Your Score: $_score / ${_questions.length}',
-                style: const TextStyle(fontSize: 20, color: Colors.white),
+                isPerfect ? 'Perfect Score!' : isGood ? 'Well Done!' : 'Good Try!',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
               ),
-              const SizedBox(height: 20),
+              
+              const SizedBox(height: 8),
+              
+              Text(
+                isPerfect
+                    ? 'You\'re an emoji expert! 🎉'
+                    : isGood
+                        ? 'Great job! 👏'
+                        : 'Keep practicing! 💪',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Score display
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isPerfect
+                        ? [const Color(0xFFF59E0B), const Color(0xFFEF4444)]
+                        : isGood
+                            ? [const Color(0xFF10B981), const Color(0xFF059669)]
+                            : [const Color(0xFF6366F1), const Color(0xFF8B5CF6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isPerfect
+                              ? const Color(0xFFF59E0B)
+                              : isGood
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF6366F1))
+                          .withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Your Score',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '$_score',
+                          style: const TextStyle(
+                            fontSize: 56,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            height: 1,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            ' / ${_questions.length}',
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$percentage%',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Play Again button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
                   ),
                   onPressed: () {
-                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop();
                     _resetGame();
                   },
-                  child: const Text(
-                    'Play Again',
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.refresh_rounded, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Play Again',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -387,160 +533,207 @@ class _EmojiQuizScreenState extends State<EmojiQuizScreen> {
     final EmojiQuestion currentQuestion = _questions[_currentIndex];
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF00c6ff), Color(0xFF0072ff)], // Fun blue gradient
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        elevation: 2,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B)),
+          onPressed: () => Navigator.pop(context),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // --- Header: Score and Question Number ---
-                _buildHeader(),
-                const SizedBox(height: 20),
-
-                // --- Question Card ---
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      FittedBox(
-                        child: Text(
-                          currentQuestion.emojis,
-                          style: const TextStyle(fontSize: 72),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'What does this mean?',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                 ),
-                const SizedBox(height: 24),
-
-                // --- Options ---
-                Expanded(
-                  child: AbsorbPointer(
-                    // Disable buttons after an answer is given
-                    absorbing: !_gameInProgress,
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: currentQuestion.options.length,
-                      itemBuilder: (context, index) {
-                        final option = currentQuestion.options[index];
-                        return _buildOptionButton(option);
-                      },
-                    ),
-                  ),
-                ),
-
-                // --- Feedback Message ---
-                AnimatedOpacity(
-                  opacity: _feedbackMessage != null ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Text(
-                      _feedbackMessage ?? '',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 4.0,
-                            color: Colors.black.withOpacity(0.5),
-                            offset: const Offset(1.0, 1.0),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ],
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.emoji_emotions_rounded, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Emoji Quiz',
+              style: TextStyle(
+                color: Color(0xFF1E293B),
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6366F1).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF6366F1).withOpacity(0.3)),
+            ),
+            child: Text(
+              '${_currentIndex + 1}/${_questions.length}',
+              style: const TextStyle(
+                color: Color(0xFF6366F1),
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  /// Helper Widget to build the top header bar.
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white30, width: 0.5),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Score
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Score',
-                style: TextStyle(fontSize: 12, color: Colors.white70),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$_score',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          // Question Number
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Text(
-                'Question',
-                style: TextStyle(fontSize: 12, color: Colors.white70),
-              ),
-              const SizedBox(height: 4),
-              // This will now correctly show "X / 10"
-              Text(
-                '${_currentIndex + 1} / ${_questions.length}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
         ],
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              // Score card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFFF59E0B), Color(0xFFEF4444)],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.star_rounded, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Score: ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '$_score',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Emoji display
+              Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF6366F1).withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: FittedBox(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        currentQuestion.emojis,
+                        style: const TextStyle(fontSize: 80),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Question text card
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6366F1).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFF6366F1).withOpacity(0.2),
+                  ),
+                ),
+                child: const Text(
+                  'What does this emoji mean?',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF6366F1),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Options
+              AbsorbPointer(
+                absorbing: !_gameInProgress,
+                child: Column(
+                  children: currentQuestion.options.map((option) {
+                    return _buildOptionButton(option);
+                  }).toList(),
+                ),
+              ),
+
+              // Feedback Message
+              AnimatedOpacity(
+                opacity: _feedbackMessage != null ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  margin: const EdgeInsets.only(top: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: _feedbackMessage?.contains('Correct') ?? false
+                          ? [const Color(0xFF10B981), const Color(0xFF059669)]
+                          : [const Color(0xFFEF4444), const Color(0xFFDC2626)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _feedbackMessage ?? '',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -549,7 +742,8 @@ class _EmojiQuizScreenState extends State<EmojiQuizScreen> {
   Widget _buildOptionButton(String option) {
     // Determine the color based on the game state
     Color buttonColor = Colors.white;
-    Color textColor = const Color(0xFF0072ff);
+    Color textColor = const Color(0xFF1E293B);
+    Color borderColor = Colors.grey[300]!;
     IconData? icon;
 
     if (_selectedOption != null) {
@@ -560,58 +754,70 @@ class _EmojiQuizScreenState extends State<EmojiQuizScreen> {
 
       if (isCorrect) {
         // This is the correct answer
-        buttonColor = Colors.green.shade400;
-        textColor = Colors.white;
-        icon = Icons.check_circle;
+        buttonColor = const Color(0xFF10B981).withOpacity(0.1);
+        borderColor = const Color(0xFF10B981);
+        textColor = const Color(0xFF1E293B);
+        icon = Icons.check_circle_rounded;
       } else if (isSelected) {
         // This is the incorrect answer the user selected
-        buttonColor = Colors.red.shade400; // This typo is now fixed
-        textColor = Colors.white;
-        icon = Icons.cancel;
+        buttonColor = const Color(0xFFEF4444).withOpacity(0.1);
+        borderColor = const Color(0xFFEF4444);
+        textColor = const Color(0xFF1E293B);
+        icon = Icons.cancel_rounded;
       } else {
         // This is an unselected, incorrect option
-        buttonColor = Colors.white.withOpacity(0.5);
-        textColor = Colors.grey.shade700;
+        buttonColor = Colors.grey[100]!;
+        borderColor = Colors.grey[300]!;
+        textColor = const Color(0xFF64748B);
       }
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: GestureDetector(
-        onTap: () => _answerQuestion(option),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: buttonColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  option,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _answerQuestion(option),
+          borderRadius: BorderRadius.circular(16),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: buttonColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor, width: 2),
+              boxShadow: [
+                if (_selectedOption == null || option == _selectedOption || 
+                    option == _questions[_currentIndex].correctAnswer)
+                  BoxShadow(
+                    color: borderColor.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    option,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              if (icon != null)
-                Icon(
-                  icon,
-                  color: textColor,
-                ),
-            ],
+                if (icon != null)
+                  Icon(
+                    icon,
+                    color: icon == Icons.check_circle_rounded 
+                        ? const Color(0xFF10B981) 
+                        : const Color(0xFFEF4444),
+                    size: 24,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
