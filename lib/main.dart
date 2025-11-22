@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/guess_number.dart';
 import 'screens/quiz_game.dart';
-import 'screens/leaderboard.dart';
-import 'screens/profile.dart';
 import 'screens/daily_challenge.dart';
 import 'screens/memory_match.dart';
 import 'screens/math_challenge.dart';
 import 'screens/emoji_quiz.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+void main() {
   runApp(const FunHubApp());
 }
 
@@ -30,17 +22,17 @@ class FunHubApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: const Color(0xFF6366F1),
           brightness: Brightness.light,
         ),
         appBarTheme: AppBarTheme(
           elevation: 0,
           backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
+          foregroundColor: const Color(0xFF1E293B),
           centerTitle: true,
-          iconTheme: const IconThemeData(color: Colors.black87),
+          iconTheme: const IconThemeData(color: Color(0xFF1E293B)),
         ),
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: Colors.grey[50],
       ),
       initialRoute: '/splash',
       routes: {
@@ -48,8 +40,6 @@ class FunHubApp extends StatelessWidget {
         '/': (context) => const HomeScreen(),
         '/guess': (context) => const GuessNumberScreen(),
         '/quiz': (context) => const QuizGameScreen(),
-        '/leaderboard': (context) => const LeaderboardScreen(),
-        '/profile': (context) => const ProfileScreen(),
         '/daily': (context) => const DailyChallengeScreen(),
         '/memory': (context) => const MemoryMatchScreen(),
         '/math': (context) => const MathChallengeScreen(),

@@ -30,8 +30,11 @@ class _SplashScreenState extends State<SplashScreen>
     _scaleController.forward();
     _opacityController.forward();
 
+    // Navigate directly to home screen after 3 seconds
     Timer(const Duration(seconds: 3), () {
-      if (mounted) Navigator.of(context).pushReplacementNamed('/');
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/');
+      }
     });
   }
 
@@ -46,11 +49,11 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.blue.shade50,
-              Colors.purple.shade100,
+              Color(0xFF6366F1),
+              Color(0xFF8B5CF6),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -68,14 +71,10 @@ class _SplashScreenState extends State<SplashScreen>
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Colors.blue.shade400, Colors.purple.shade400],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.purple.withOpacity(0.3),
+                        color: Colors.black.withOpacity(0.2),
                         blurRadius: 20,
                         spreadRadius: 5,
                       ),
@@ -92,23 +91,23 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 32),
               FadeTransition(
                 opacity: _opacityController,
-                child: Column(
+                child: const Column(
                   children: [
-                    const Text(
+                    Text(
                       'FunHub',
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Colors.white,
                         letterSpacing: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Your Brain Training Games',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
+                        color: Colors.white70,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -121,8 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
                     .animate(_opacityController),
                 child: const CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(Colors.purple),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
             ],
